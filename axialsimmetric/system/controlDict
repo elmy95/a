@@ -1,0 +1,103 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     oildensityFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         100;
+
+deltaT          1e-03;
+
+writeControl    runTime;
+
+writeInterval   0.05;
+
+purgeWrite      0;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+
+
+
+
+functions
+
+{
+
+    breakthrough
+
+    {
+
+        // Load the library containing the 'coded' functionObject
+
+        libs            ("libutilityFunctionObjects.so");
+
+
+
+        type coded;
+
+
+
+        // Name of on-the-fly generated functionObject
+
+        name breakthrough;
+
+
+
+        codeWrite
+
+        #{
+
+            /// Lookup psi
+
+
+
+            Info<< "Looking up field psi\n" << endl;
+
+            const volScalarField& psi = mesh().lookupObject<volScalarField>("psi");
+
+            const scalar totalPsi( fvc::domainIntegrate(psi).value() );
+
+            std::ofstream file;
+
+            file.open("totalPsi.dat", std::ios::out | std::ios::app);
+
+            file << mesh().time().timeName()
+
+               << " " << totalPsi <<"\n";
+
+        #};
+
+    }
+
+}
+// ************************************************************************* //
